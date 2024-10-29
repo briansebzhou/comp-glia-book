@@ -4,8 +4,6 @@ Figure 2: Modeling of synaptically-activated astrocytes.
 Two astrocytes (one stochastic and the other deterministic) activated by
 synapses (connecting "dummy" groups of neurons) (see De Pitta' et al., 2009)
 """
-import matplotlib      # DELETE
-matplotlib.use('agg')  # DELETE
 from brian2 import *
 
 import plot_utils as pu
@@ -71,10 +69,8 @@ defaultclock.dt = sim_dt  # Set the integration time
 # (We are only interested in the activity of the synapse, so we replace the
 # neurons by trivial "dummy" groups
 # # Regular spiking neuron
-# INCLUDE BEGIN
 source_neurons = NeuronGroup(1, 'dx/dt = f_0 : 1', threshold='x>1',
                              reset='x=0', method='euler')
-# INCLUDE END
 ## Dummy neuron
 target_neurons = NeuronGroup(1, '')
 
@@ -82,19 +78,16 @@ target_neurons = NeuronGroup(1, '')
 ### Synapses
 # Our synapse model is trivial, we are only interested in its neurotransmitter
 # release
-# INCLUDE BEGIN
 synapses_eqs = 'dY_S/dt = -Omega_c * Y_S : mmolar (clock-driven)'
 synapses_action = 'Y_S += rho_c * Y_T'
 synapses = Synapses(source_neurons, target_neurons,
                     model=synapses_eqs, on_pre=synapses_action,
                     method='linear')
 synapses.connect()
-# INCLUDE END
 
 ### Astrocytes
 # We are modelling two astrocytes, the first is deterministic while the second
 # displays stochastic dynamics
-# INCLUDE BEGIN
 astro_eqs = '''
 # Fraction of activated astrocyte receptors:
 dGamma_A/dt = O_N * Y_S * (1 - Gamma_A) -
@@ -134,23 +127,18 @@ noise   : 1 (constant)
 '''
 # Milstein integration method for the multiplicative noise
 astrocytes = NeuronGroup(2, astro_eqs, method='milstein')
-# INCLUDE END
 astrocytes.h = 0.9  # IP3Rs are initially mostly available for CICR
 
 # The first astrocyte is deterministic ("zero noise"), the second stochastic
-# INCLUDE BEGIN
 astrocytes.noise = [0, 1]
-# INCLUDE END
 # Connection between synapses and astrocytes (both astrocytes receive the
 # same input from the synapse). Note that in this special case, where each
 # astrocyte is only influenced by the neurotransmitter from a single synapse,
 # the '(linked)' variable mechanism could be used instead. The mechanism used
 # below is more general and can add the contribution of several synapses.
-# INCLUDE BEGIN
 ecs_syn_to_astro = Synapses(synapses, astrocytes,
                             'Y_S_post = Y_S_pre : mmolar (summed)')
 ecs_syn_to_astro.connect()
-# INCLUDE END
 ################################################################################
 # Monitors
 ################################################################################
@@ -203,6 +191,4 @@ pu.adjust_spines(ax[3], ['left', 'bottom'])
 
 pu.adjust_ylabels(ax, x_offset=-0.1)
 
-# Save figures  # DELETE
-plt.savefig('../text/figures/results/example_2_gchi_astrocyte_Figure.eps', dpi=600)  # DELETE
 plt.show()

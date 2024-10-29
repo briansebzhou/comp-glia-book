@@ -5,8 +5,6 @@ I/O curves in terms average per-spike release vs. rate of stimulation for three
 synapses: one without gliotransmission, and the other two with open- and close-loop
 gliotransmssion.
 """
-import matplotlib      # DELETE
-matplotlib.use('agg')  # DELETE
 from brian2 import *
 
 import plot_utils as pu
@@ -253,6 +251,4 @@ pu.adjust_spines(ax[3], ['left', 'bottom'])
 
 pu.adjust_ylabels(ax, x_offset=-0.2)
 
-# Save Figure for paper  # DELETE
-plt.savefig('../text/figures/results/example_4_rsmean_Figure.eps', dpi=600)  # DELETE
 plt.show()

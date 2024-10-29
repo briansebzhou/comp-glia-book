@@ -4,8 +4,6 @@ Figure 5: Astrocytes connected in networks
 Intercellular calcium wave propagation in a ring of 50 astrocytes connected by
 bidirectional gap junctions (see Goldberg et al., 2010)
 """
-import matplotlib      # DELETE
-matplotlib.use('agg')  # DELETE
 from brian2 import *
 
 import plot_utils as pu
@@ -54,10 +52,8 @@ omega_I = 0.05*umolar        # Scaling factor of diffusion
 defaultclock.dt = sim_dt     # Set the integration time
 
 ### Astrocytes
-# INCLUDE BEGIN
 astro_eqs = '''
 dI/dt = J_delta - J_3K - J_5P + J_ex + J_coupling : mmolar
-# ELLIPSIS BEGIN
 J_delta = O_delta/(1 + I/kappa_delta) * C**2/(C**2 + K_delta**2) : mmolar/second
 J_3K = O_3K * C**4/(C**4 + K_D**4) * I/(I + K_3K)                : mmolar/second
 J_5P = Omega_5P*I                                                : mmolar/second
@@ -66,10 +62,8 @@ stimulus = int((t % (50*second))<20*second)                      : 1
 delta_I_bias = I - I_bias*stimulus                               : mmolar
 J_ex = -F_ex/2*(1 + tanh((abs(delta_I_bias) - I_Theta)/omega_I)) *
                 sign(delta_I_bias)                               : mmolar/second
-# ELLIPSIS END
 # Diffusion between astrocytes
 J_coupling : mmolar/second
-# ELLIPSIS BEGIN
 
 # Ca^2+-induced Ca^2+ release:
 dC/dt = J_r + J_l - J_p                                   : mmolar
@@ -84,9 +78,7 @@ Q_2 = d_2 * (I + d_1)/(I + d_3)                           : mmolar
 
 # External IP_3 drive
 I_bias : mmolar (constant)
-# ELLIPSIS END
 '''
-# INCLUDE END
 
 N_astro = 50 # Total number of astrocytes in the network
 astrocytes = NeuronGroup(N_astro, astro_eqs, method='rk4')
@@ -94,7 +86,6 @@ astrocytes = NeuronGroup(N_astro, astro_eqs, method='rk4')
 astrocytes.I_bias[N_astro//2] = 1.0*umolar
 astrocytes.h = 0.9
 # Diffusion between astrocytes
-# INCLUDE BEGIN
 astro_to_astro_eqs = '''
 delta_I = I_post - I_pre        : mmolar
 J_coupling_post = -F/2 * (1 + tanh((abs(delta_I) - I_Theta)/omega_I)) *
@@ -102,14 +93,11 @@ J_coupling_post = -F/2 * (1 + tanh((abs(delta_I) - I_Theta)/omega_I)) *
 '''
 astro_to_astro = Synapses(astrocytes, astrocytes,
                           model=astro_to_astro_eqs)
-# INCLUDE END
 # Couple neighboring astrocytes: two connections per astrocyte pair, as
 # the above formulation will only update the I_coupling term of one of the
 # astrocytes
-# INCLUDE BEGIN
 astro_to_astro.connect('j == (i + 1) % N_pre or '
                        'j == (i + N_pre - 1) % N_pre')
-# INCLUDE END
 
 ################################################################################
 # Monitors
@@ -151,5 +139,4 @@ pu.adjust_spines(ax, ['left', 'bottom'])
 
 pu.adjust_ylabels([ax], x_offset=-0.08)
 
-plt.savefig('../text/figures/results/example_5_astro_ring_Figure.eps', dpi=600)  # DELETE
 plt.show()

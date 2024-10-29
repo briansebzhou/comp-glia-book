@@ -1,0 +1,1 @@
+astrocytes.noise = [0, 1]

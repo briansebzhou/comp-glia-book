@@ -5,8 +5,6 @@ Randomly connected networks with conductance-based synapses (COBA; see Brunel,
 2000). Synapses exhibit short-time plasticity (Tsodyks, 2005; Tsodyks et al.,
 1998).
 """
-import matplotlib      # DELETE
-matplotlib.use('agg')  # DELETE
 from brian2 import *
 import os
 
@@ -51,55 +49,41 @@ Omega_f = 3.33/second  # Synaptic facilitation rate
 defaultclock.dt = sim_dt
 
 ### Neurons
-# INCLUDE BEGIN
 neuron_eqs = '''
 dv/dt = (g_l*(E_l-v) + g_e*(E_e-v) + g_i*(E_i-v) +
          I_ex)/C_m    : volt (unless refractory)
 dg_e/dt = -g_e/tau_e  : siemens  # post-synaptic exc. conductance
 dg_i/dt = -g_i/tau_i  : siemens  # post-synaptic inh. conductance
 '''
-# INCLUDE END
-# INCLUDE BEGIN
 neurons = NeuronGroup(N_e + N_i, model=neuron_eqs,
                       threshold='v>V_th', reset='v=V_r',
                       refractory='tau_r', method='euler')
-# INCLUDE END
 # Random initial membrane potential values and conductances
-# INCLUDE BEGIN
 neurons.v = 'E_l + rand()*(V_th-E_l)'
 neurons.g_e = 'rand()*w_e'
 neurons.g_i = 'rand()*w_i'
 exc_neurons = neurons[:N_e]
 inh_neurons = neurons[N_e:]
-# INCLUDE END
 
 ### Synapses
-# INCLUDE BEGIN
 synapses_eqs = '''
 # Usage of releasable neurotransmitter per single action potential:
 du_S/dt = -Omega_f * u_S     : 1 (event-driven)
 # Fraction of synaptic neurotransmitter resources available:
 dx_S/dt = Omega_d *(1 - x_S) : 1 (event-driven)
 '''
-# INCLUDE END
-# INCLUDE BEGIN
 synapses_action = '''
 u_S += U_0 * (1 - u_S)
 r_S = u_S * x_S
 x_S -= r_S
 '''
-# INCLUDE END
-# INCLUDE BEGIN
 exc_syn = Synapses(exc_neurons, neurons, model=synapses_eqs,
                    on_pre=synapses_action+'g_e_post += w_e*r_S')
 inh_syn = Synapses(inh_neurons, neurons, model=synapses_eqs,
                    on_pre=synapses_action+'g_i_post += w_i*r_S')
 
-# INCLUDE END
-# INCLUDE BEGIN
 exc_syn.connect(p=0.05)
 inh_syn.connect(p=0.2)
-# INCLUDE END
 # Start from "resting" condition: all synapses have fully-replenished
 # neurotransmitter resources
 exc_syn.x_S = 1
@@ -219,8 +203,5 @@ ax[3].set(xlim=(0., duration/ms), ylim=(-0.01, 0.62),
 
 pu.adjust_ylabels(ax, x_offset=-0.20)
 
-## Save figures  # DELETE
-fig1.savefig('../text/figures/results/example_1_COBA_Figure_1.eps', dpi=600)  # DELETE
-fig2.savefig('../text/figures/results/example_1_COBA_Figure_2.eps', dpi=600)  # DELETE
 
 plt.show()

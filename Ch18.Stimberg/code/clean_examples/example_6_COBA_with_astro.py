@@ -5,8 +5,6 @@ Randomly connected COBA network (see Brunel, 2000) with excitatory synapses modu
 by release-increasing gliotransmission from a randomly connected network of astrocytes.
 """
 
-import matplotlib      # DELETE
-matplotlib.use('agg')  # DELETE
 from brian2 import *
 
 import plot_utils as pu
@@ -109,13 +107,10 @@ duration = 8*second          # Total simulation time
 # Model definition
 ################################################################################
 ### Neurons
-# INCLUDE BEGIN
 neuron_eqs = '''
-# ELLIPSIS BEGIN
 dv/dt = (g_l*(E_l-v) + g_e*(E_e-v) + g_i*(E_i-v) + I_ex*stimulus(t))/C_m : volt (unless refractory)
 dg_e/dt = -g_e/tau_e : siemens  # post-synaptic excitatory conductance
 dg_i/dt = -g_i/tau_i : siemens  # post-synaptic inhibitory conductance
-# ELLIPSIS END
 # Neuron position in space
 x : meter (constant)
 y : meter (constant)
@@ -131,16 +126,13 @@ N_cols = N_e/N_rows
 grid_dist = (size / N_cols)
 exc_neurons.x = '(i / N_rows)*grid_dist - N_rows/2.0*grid_dist'
 exc_neurons.y = '(i % N_rows)*grid_dist - N_cols/2.0*grid_dist'
-# INCLUDE END
 # Random initial membrane potential values and conductances
 neurons.v = 'E_l + rand()*(V_th-E_l)'
 neurons.g_e = 'rand()*w_e'
 neurons.g_i = 'rand()*w_i'
 
 ### Synapses
-# INCLUDE BEGIN
 synapses_eqs = '''
-# ELLIPSIS BEGIN
 # Neurotransmitter
 dY_S/dt = -Omega_c * Y_S                                    : mmolar (clock-driven)
 # Fraction of activated presynaptic receptors
@@ -154,11 +146,9 @@ U_0                                                         : 1
 r_S                                                         : 1
 # gliotransmitter concentration in the extracellular space:
 G_A                                                         : mmolar
-# ELLIPSIS END
 # which astrocyte covers this synapse ?
 astrocyte_index : integer (constant)
 '''
-# ELLIPSIS BEGIN
 synapses_action = '''
 U_0 = (1 - Gamma_S) * U_0__star + alpha * Gamma_S
 u_S += U_0 * (1 - u_S)
@@ -166,11 +156,9 @@ r_S = u_S * x_S
 x_S -= r_S
 Y_S += rho_c * Y_T * r_S
 '''
-# ELLIPSIS END
 exc_syn = Synapses(exc_neurons, neurons, model=synapses_eqs,
                    on_pre=synapses_action+'g_e_post += w_e*r_S',
                    method='linear')
-# INCLUDE END
 exc_syn.connect(True, p=0.05)
 exc_syn.x_S = 1.0
 inh_syn = Synapses(inh_neurons, neurons, model=synapses_eqs,
@@ -180,19 +168,15 @@ inh_syn.connect(True, p=0.2)
 inh_syn.x_S = 1.0
 # Connect excitatory synapses to an astrocyte depending on the position of the
 # post-synaptic neuron
-# INCLUDE BEGIN
 N_rows_a = int(sqrt(N_a))
 N_cols_a = N_a/N_rows_a
 grid_dist = size / N_rows_a
 exc_syn.astrocyte_index = ('int(x_post/grid_dist) + '
                            'N_cols_a*int(y_post/grid_dist)')
-# INCLUDE END
 ### Astrocytes
 # The astrocyte emits gliotransmitter when its Ca^2+ concentration crosses
 # a threshold
-# INCLUDE BEGIN
 astro_eqs = '''
-# ELLIPSIS BEGIN
 # Fraction of activated astrocyte receptors:
 dGamma_A/dt = O_N * Y_S * (1 - clip(Gamma_A,0,1)) -
               Omega_N*(1 + zeta * C/(C + K_KC)) * clip(Gamma_A,0,1) : 1
@@ -222,12 +206,10 @@ dx_A/dt = Omega_A * (1 - x_A) : 1
 dG_A/dt = -Omega_e*G_A        : mmolar
 # Neurotransmitter concentration in the extracellular space:
 Y_S                           : mmolar
-# ELLIPSIS END
 # The astrocyte position in space
 x : meter (constant)
 y : meter (constant)
 '''
-# ELLIPSIS BEGIN
 glio_release = '''
 G_A += rho_e * G_T * U_A * x_A
 x_A -= U_A *  x_A
@@ -243,25 +225,21 @@ astrocytes = NeuronGroup(N_a, astro_eqs,
                          reset=glio_release,
                          method='rk4',
                          dt=1e-2*second)
-# ELLIPSIS END
 # Arrange astrocytes in a grid
 astrocytes.x = '(i / N_rows_a)*grid_dist - N_rows_a/2.0*grid_dist'
 astrocytes.y = '(i % N_rows_a)*grid_dist - N_cols_a/2.0*grid_dist'
-# INCLUDE END
 # Add random initialization
 astrocytes.C = 0.01*umolar
 astrocytes.h = 0.9
 astrocytes.I = 0.01*umolar
 astrocytes.x_A = 1.0
 
-# INCLUDE BEGIN
 ecs_astro_to_syn = Synapses(astrocytes, exc_syn,
                             'G_A_post = G_A_pre : mmolar (summed)')
 ecs_astro_to_syn.connect('i == astrocyte_index_post')
 ecs_syn_to_astro = Synapses(exc_syn, astrocytes,
                             'Y_S_post = Y_S_pre/N_incoming : mmolar (summed)')
 ecs_syn_to_astro.connect('astrocyte_index_pre == j')
-# INCLUDE END
 # Diffusion between astrocytes
 astro_to_astro_eqs = '''
 delta_I = I_post - I_pre            : mmolar
@@ -272,11 +250,9 @@ astro_to_astro = Synapses(astrocytes, astrocytes,
                           model=astro_to_astro_eqs)
 # Connect to all astrocytes less than 75um away
 # (about 4 connections per astrocyte)
-# INCLUDE BEGIN
 astro_to_astro.connect('i != j and '
                        'sqrt((x_pre-x_post)**2 +'
                        '     (y_pre-y_post)**2) < 75*um')
-# INCLUDE END
 
 ################################################################################
 # Monitors
@@ -338,6 +314,4 @@ ax[2].get_yaxis().set_major_formatter(ScalarFormatter())
 
 pu.adjust_ylabels(ax, x_offset=-0.11)
 
-# Save figures  # DELETE
-plt.savefig('../text/figures/results/example_6_COBA_with_astro_Figure.eps', dpi=600)  # DELETE
 plt.show()

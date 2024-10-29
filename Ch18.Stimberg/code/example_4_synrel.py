@@ -219,7 +219,10 @@ run(duration, report='text')
 ################################################################################
 # Analysis and plotting
 ################################################################################
-plt.style.use('figures.mplstyle')
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+style_path = os.path.join(current_dir, 'figures.mplstyle')
+plt.style.use(style_path)
 
 fig, ax = plt.subplots(nrows=4, ncols=1, figsize=(3.07, 3.07*1.33),
                        sharex=False,

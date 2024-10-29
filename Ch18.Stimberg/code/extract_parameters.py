@@ -25,7 +25,7 @@ def parse_line(line):
             comment = ''
         varname, value = assignment.split('=')
     except ValueError:
-        print 'Cannot parse line: {}'.format(line)
+        print('Cannot parse line: {}'.format(line))
         return None, None, None
     return varname.strip(), value.strip(), comment.strip()
 
@@ -55,7 +55,7 @@ def merge_parameters(all_parameters):
                 comments.append(comment)
         unique_comments = {c for c in comments if c is not None and len(c)}
         if len({c for c in comments if c is not None and len(c)}) > 1:
-            print 'WARNING: Different comments for variable {} ({})'.format(varname, unique_comments)
+            print('WARNING: Different comments for variable {} ({})'.format(varname, unique_comments))
         if len(set(values)) != 1 or len(values) == 1:
             this_parameter = {}
             for value in set(values):

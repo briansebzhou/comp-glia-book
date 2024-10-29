@@ -4,8 +4,6 @@ Figure 3: Modeling of modulation of synaptic release by gliotransmission
 Three synapses: the first one without astrocyte, the remaining two respectively with
 open-loop and close-loop gliotransmission (see De Pitta' et al., 2011, 2016)
 """
-import matplotlib      # DELETE
-matplotlib.use('agg')  # DELETE
 from brian2 import *
 
 import plot_utils as pu
@@ -87,7 +85,6 @@ target_neurons = NeuronGroup(1, '')
 # Also note that for easier plotting we do not use the "event-driven" flag here,
 # even though the value of u_S and x_S only needs to be updated on the arrival
 # of a spike
-# INCLUDE BEGIN
 synapses_eqs = '''
 # Neurotransmitter
 dY_S/dt = -Omega_c * Y_S        : mmolar (clock-driven)
@@ -103,8 +100,6 @@ r_S                             : 1
 # gliotransmitter concentration in the extracellular space:
 G_A                             : mmolar
 '''
-# INCLUDE END
-# INCLUDE BEGIN
 synapses_action = '''
 U_0 = (1 - Gamma_S) * U_0__star + alpha * Gamma_S
 u_S += U_0 * (1 - u_S)
@@ -115,16 +110,13 @@ Y_S += rho_c * Y_T * r_S
 synapses = Synapses(source_neurons, target_neurons,
                     model=synapses_eqs, on_pre=synapses_action,
                     method='linear')
-# INCLUDE END
 # We create three synapses, only the second and third ones are modulated by astrocytes
 synapses.connect(True, n=3)
 
 ### Astrocytes
 # The astrocyte emits gliotransmitter when its Ca^2+ concentration crosses
 # a threshold
-# INCLUDE BEGIN
 astro_eqs = '''
-# ELLIPSIS BEGIN
 # IP_3 dynamics:
 dI/dt = J_delta - J_3K - J_5P + J_ex                             : mmolar
 J_delta = O_delta/(1 + I/kappa_delta) * C**2/(C**2 + K_delta**2) : mmolar/second
@@ -144,7 +136,6 @@ m_inf = I/(I + d_1) * C/(C + d_5)  : 1
 h_inf = Q_2/(Q_2 + C)              : 1
 tau_h = 1/(O_2 * (Q_2 + C))        : second
 Q_2 = d_2 * (I + d_1)/(I + d_3)    : mmolar
-# ELLIPSIS END
 # Fraction of gliotransmitter resources available:
 dx_A/dt = Omega_A * (1 - x_A)      : 1
 # gliotransmitter concentration in the extracellular space:
@@ -154,20 +145,17 @@ glio_release = '''
 G_A += rho_e * G_T * U_A * x_A
 x_A -= U_A *  x_A
 '''
-# INCLUDE END
 # The following formulation makes sure that a "spike" is only triggered at the
 # first threshold crossing -- the astrocyte is considered "refractory" (i.e.,
 # not allowed to trigger another event) as long as the Ca2+ concentration
 # remains above threshold
 # The gliotransmitter release happens when the threshold is crossed, in Brian
 # terms it can therefore be considered a "reset"
-# INCLUDE BEGIN
 astrocyte = NeuronGroup(2, astro_eqs,
                         threshold='C>C_Theta',
                         refractory='C>C_Theta',
                         reset=glio_release,
                         method='rk4')
-# INCLUDE END
 # Different length of stimulation
 astrocyte.x_A = 1.0
 astrocyte.h = 0.9
@@ -179,14 +167,10 @@ astrocyte.I_bias = np.asarray([0.8, 1.25])*umolar
 # a single astrocyte, the '(linked)' variable mechanism could be used instead.
 # The mechanism used below is more general and can add the contribution of
 # several astrocytes
-# INCLUDE BEGIN
 ecs_astro_to_syn = Synapses(astrocyte, synapses,
                             'G_A_post = G_A_pre : mmolar (summed)')
-# INCLUDE END
 # Connect second and third synapse to a different astrocyte
-# INCLUDE BEGIN
 ecs_astro_to_syn.connect(j='i+1')
-# INCLUDE END
 
 ################################################################################
 # Monitors
@@ -270,6 +254,4 @@ pu.adjust_spines(ax[6], ['left', 'bottom'])
 
 pu.adjust_ylabels(ax, x_offset=-0.11)
 
-# Save figures  # DELETE
-plt.savefig('../text/figures/results/example_3_io_synapse_Figure.eps', dpi=600)  # DELETE
 plt.show()
