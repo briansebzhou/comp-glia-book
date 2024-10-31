@@ -230,16 +230,19 @@ ax[3].axis('off')
 ## Synaptic variables
 # Use a custom cycle that uses black as the first color
 prop_cycle = cycler(color='k').concat(matplotlib.rcParams['axes.prop_cycle'][2:])
+labal_size = 16
 ax[4].set(xlim=(0, (duration-transient)/ms), ylim=[0., 1.],
           yticks=np.arange(0, 1.1, .25), ylabel='$u_S$',
           prop_cycle=prop_cycle)
 ax[4].plot((syn_mon.t-transient)/ms, syn_mon.u_S.T)
+ax[4].yaxis.label.set_size(labal_size)
 pu.adjust_spines(ax[4], ['left'])
 
 ax[5].set(xlim=(0, (duration-transient)/ms), ylim=[-0.05, 1.],
           yticks=np.arange(0,1.1,.25), ylabel='$x_S$',
           prop_cycle=prop_cycle)
 ax[5].plot((syn_mon.t-transient)/ms, syn_mon.x_S.T)
+ax[5].yaxis.label.set_size(labal_size)
 pu.adjust_spines(ax[5], ['left'])
 
 ax[6].set(xlim=(0, (duration-transient)/ms), ylim=(-5., 1500),
@@ -247,9 +250,10 @@ ax[6].set(xlim=(0, (duration-transient)/ms), ylim=(-5., 1500),
           yticks=[0, 500, 1000, 1500], ylabel=r'$Y_S$ ($\mu$M)',
           prop_cycle=prop_cycle)
 ax[6].plot((syn_mon.t-transient)/ms, syn_mon.Y_S.T/umolar)
+ax[6].yaxis.label.set_size(labal_size)
 ax[6].legend(['no gliotransmission',
               'weak gliotransmission',
-              'stronger gliotransmission'], loc='upper right')
+              'stronger gliotransmission'], loc='upper right', fontsize=12)
 pu.adjust_spines(ax[6], ['left', 'bottom'])
 
 pu.adjust_ylabels(ax, x_offset=-0.11)

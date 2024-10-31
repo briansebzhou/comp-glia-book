@@ -284,9 +284,11 @@ fig, ax = plt.subplots(nrows=3, ncols=1, sharex=True, figsize=(6.26894, 6.26894*
                        gridspec_kw={'height_ratios': [1, 6, 2],
                                     'left': 0.12, 'top': 0.97})
 time_range = np.linspace(0, int(duration/second), int(duration/second*100))*second
+labal_size = 16
 ax[0].plot(time_range, I_ex*stimulus(time_range)/pA, 'k')
 ax[0].set(xlim=(0, duration/second), ylim=(98, 122),
           yticks=[100, 120], ylabel='$I_{ex}$ (pA)')
+ax[0].yaxis.label.set_size(labal_size)
 pu.adjust_spines(ax[0], ['left'])
 
 ## We only plot a fraction of the spikes
@@ -301,6 +303,7 @@ ax[1].plot(ast_mon.t[ast_mon.i <= N_a//fraction]/second,
 ax[1].set(xlim=(0, duration/second), ylim=[0,(N_e+N_i+N_a)//fraction],
           yticks=np.arange(0, (N_e+N_i+N_a)//fraction+1, 250),
           ylabel='cell index')
+ax[1].yaxis.label.set_size(labal_size)
 pu.adjust_spines(ax[1], ['left'])
 
 # Generate frequencies
@@ -314,6 +317,7 @@ pu.adjust_spines(ax[2], ['left', 'bottom'])
 ax[2].set(xlim=(0, duration/second), ylim=(0.1, 150),
           xticks=np.arange(0,9), yticks=[0.1, 1, 10, 100],
           xlabel='time (s)', ylabel='rate (Hz)')
+ax[2].yaxis.label.set_size(labal_size)
 ax[2].get_yaxis().set_major_formatter(ScalarFormatter())
 
 pu.adjust_ylabels(ax, x_offset=-0.11)

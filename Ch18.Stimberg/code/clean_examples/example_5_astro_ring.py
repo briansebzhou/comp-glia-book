@@ -135,6 +135,7 @@ ax.set(xlim=(0., duration/second), ylim=(0, (N_astro+1.5)*scaling),
        yticks=np.arange(0.5*scaling, (N_astro + 1.5)*scaling, step*scaling),
        yticklabels=[str(yt) for yt in np.arange(0, N_astro + 1, step)],
        ylabel='$C/C_{max}$ (cell index)')
+ax.yaxis.label.set_size(16)
 pu.adjust_spines(ax, ['left', 'bottom'])
 
 pu.adjust_ylabels([ax], x_offset=-0.08)
